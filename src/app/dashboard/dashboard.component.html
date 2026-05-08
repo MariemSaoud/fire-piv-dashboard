@@ -1,0 +1,111 @@
+<div class="wrap">
+
+  <header>
+    <div class="header-inner">
+      <div class="logo">PIV Flow Viewer</div>
+      <div class="sub">Smoke simulation · Reynolds number browser</div>
+    </div>
+  </header>
+
+  <main>
+
+    <section class="re-section">
+      <p class="section-label">Select a simulation</p>
+      <div class="re-list">
+        <button
+          *ngFor="let re of reValues"
+          class="re-btn"
+          [class.active]="re === activeRe"
+          (click)="selectRe(re)">
+          Re {{ re }}
+        </button>
+      </div>
+    </section>
+
+    <section class="content" *ngIf="activeRe !== null">
+
+      <div class="left">
+        <div class="block">
+          <div class="block-label">{{ videoFileName }}</div>
+          <div class="video-wrap">
+            <video
+              #videoPlayer
+              [src]="videoUrl"
+              controls
+              playsinline
+              (loadedmetadata)="onVideoMetadata($event)"
+              (timeupdate)="onTimeUpdate($event)">
+            </video>
+          </div>
+          <div class="meta-row" *ngIf="stats">
+            <div class="meta-item">
+              <span class="meta-key">Re</span>
+              <span class="meta-val">{{ stats.re }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-key">Frames</span>
+              <span class="meta-val">{{ stats.frames || '—' }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-key">Max speed</span>
+              <span class="meta-val">{{ stats.maxSpeed }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-key">Flow regime</span>
+              <span class="meta-val regime"
+                    [class.laminar]="stats.regime === 'Laminar'"
+                    [class.transitional]="stats.regime === 'Transitional'"
+                    [class.turbulent]="stats.regime === 'Turbulent'">
+                {{ stats.regime }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="block log-block">
+          <div class="block-label">
+            {{ logFileName }}
+            <span class="line-count" *ngIf="logLines.length">
+              {{ activeFrameIndex + 1 }} / {{ logLines.length }} lines
+            </span>
+          </div>
+
+          <div class="log-scroll" *ngIf="logLines.length > 0 && !logError">
+            <ng-container *ngFor="let line of logLines; let i = index">
+              <div
+                class="log-entry"
+                [id]="'log-line-' + i"
+                *ngIf="i <= activeFrameIndex">
+                <span class="log-ts" *ngIf="line.timestamp">{{ line.timestamp }}</span>
+                <span class="log-lvl" [ngClass]="levelClass(line.level)">{{ line.level }}</span>
+                <span class="log-msg" [innerHTML]="highlightMessage(line.message)"></span>
+              </div>
+            </ng-container>
+          </div>
+
+          <div class="log-empty" *ngIf="logLines.length > 0 && !logError && activeFrameIndex === -1">
+            <span>Press play to stream the log live.</span>
+          </div>
+
+          <div class="log-empty" *ngIf="logLines.length === 0 && !logError">
+            <span>Loading <code>{{ logFileName }}</code>…</span>
+          </div>
+
+          <div class="log-empty error" *ngIf="logError">
+            <span>Could not load <code>{{ logFileName }}</code></span>
+            <small>Check that the file is in <code>src/assets/logs/</code></small>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <div class="no-sel" *ngIf="activeRe === null">
+      <p>Choose a Reynolds number above to load the video and its sensor log.</p>
+    </div>
+
+  </main>
+
+</div>

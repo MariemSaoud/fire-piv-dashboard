@@ -1,18 +1,10 @@
-import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { Component } from '@angular/core';
+import { DashboardComponent } from './dashboard/dashboard.component';
 
-import { App } from './app';
-
-@NgModule({
-  declarations: [
-    App
-  ],
-  imports: [
-    BrowserModule
-  ],
-  providers: [
-    provideBrowserGlobalErrorListeners(),
-  ],
-  bootstrap: [App]
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [DashboardComponent],
+  template: `<app-dashboard></app-dashboard>`
 })
-export class AppModule { }
+export class App {}
